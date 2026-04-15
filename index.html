@@ -428,25 +428,40 @@ function pnlStr(v) {
   const s = v >= 0 ? '+' : '';
   return s + '$' + Math.abs(v).toFixed(2);
 }
-function ago(isoStr) {
-  if (!isoStr) return '—';
-  const diff = (Date.now() - new Date(isoStr)) / 1000;
+function parseTs(tsStr) {
+  if (!tsStr) return NaN;
+  // Handle: "2026-04-13 21:55 ET", "2026-04-14 10:44:39", "2026-04-09T12:01:14.347582Z"
+  let s = String(tsStr).trim();
+  s = s.replace(/\s+ET$/, '');      // strip trailing " ET"
+  s = s.replace(' ', 'T');           // space → T
+  if (!s.includes('Z') && !s.match(/[+-]\d{2}:\d{2}$/)) s += 'Z';  // assume UTC
+  return new Date(s).getTime();
+}
+function ago(tsStr) {
+  if (!tsStr) return '—';
+  const ms = parseTs(tsStr);
+  if (isNaN(ms)) return '—';
+  const diff = (Date.now() - ms) / 1000;
+  if (diff < 0) return 'just now';
   if (diff < 120) return 'just now';
   if (diff < 3600) return Math.floor(diff/60) + 'm ago';
   if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
   return Math.floor(diff/86400) + 'd ago';
 }
-function statusFromAge(isoStr, maxMinutes) {
-  if (!isoStr) return 'error';
-  const diff = (Date.now() - new Date(isoStr)) / 60000;
+function statusFromAge(tsStr, maxMinutes) {
+  if (!tsStr) return 'error';
+  const ms = parseTs(tsStr);
+  if (isNaN(ms)) return 'error';
+  const diff = (Date.now() - ms) / 60000;
   if (diff > maxMinutes * 2) return 'error';
   if (diff > maxMinutes * 1.5) return 'warn';
   return 'ok';
 }
 function isToday(tsStr) {
   if (!tsStr) return false;
-  const d = new Date(tsStr.replace(' ET','Z').replace(' ','T'));
-  const today = new Date();
+  const ms = parseTs(tsStr);
+  if (isNaN(ms)) return false;
+  const d = new Date(ms), today = new Date();
   return d.getUTCFullYear() === today.getUTCFullYear() &&
          d.getUTCMonth()    === today.getUTCMonth() &&
          d.getUTCDate()     === today.getUTCDate();
@@ -467,9 +482,11 @@ function renderBotCards() {
 function buildFanDuelCard() {
   const d = data.fanduel;
   if (!d) return botLoadError('FanDuel Bot');
-  const status = statusFromAge(d.generated_at, 120);
+  const status = statusFromAge(d.last_scan_ts || d.generated_at, 120);
   const stats  = d.stats || {};
-  const pnl    = stats.total_pl || 0;
+  const pnl    = stats.total_pl ?? null;
+  const units  = d.unit_total;
+  const uStr   = units != null ? (units >= 0 ? '+' : '') + units.toFixed(1) + 'u' : null;
   return `
   <div class="card bot-card">
     <div class="card-body">
@@ -489,8 +506,8 @@ function buildFanDuelCard() {
           <div class="bot-meta-value">${stats.win_rate != null ? stats.win_rate + '%' : '—'}</div>
         </div>
         <div class="bot-meta-item">
-          <div class="bot-meta-label">P&amp;L</div>
-          <div class="bot-meta-value ${pnlClass(pnl)}">${pnlStr(pnl)}</div>
+          <div class="bot-meta-label">P&amp;L / Units</div>
+          <div class="bot-meta-value ${pnlClass(pnl)}">${pnlStr(pnl)}${uStr ? ' <span style="font-size:12px;color:' + (units >= 0 ? 'var(--green)' : 'var(--red)') + '">' + uStr + '</span>' : ''}</div>
         </div>
       </div>
     </div>
@@ -500,12 +517,15 @@ function buildFanDuelCard() {
 function buildKalshiCard() {
   const d = data.kalshi;
   if (!d) return botLoadError('Kalshi Bot');
-  const status = statusFromAge(d.generated_at, 60);
-  const stats  = d.stats || {};
-  const br     = d.bankroll || {};
-  const live   = br.live || {};
-  const pnl    = d.live_pnl || 0;
-  const dryRun = d.dry_run !== false;
+  const status  = statusFromAge(d.last_scan_ts || d.generated_at, 120);
+  const stats   = d.stats || {};
+  const br      = d.bankroll || {};
+  const live    = br.live || {};
+  const balance = d.account_value ?? live.balance;
+  const pnl     = d.live_pnl ?? null;
+  const units   = d.unit_total;
+  const uStr    = units != null ? (units >= 0 ? '+' : '') + units.toFixed(1) + 'u' : null;
+  const dryRun  = d.dry_run === true;
   return `
   <div class="card bot-card">
     <div class="card-body">
@@ -513,8 +533,8 @@ function buildKalshiCard() {
       <div class="bot-status ${status}">${status === 'ok' ? 'Running' : status === 'warn' ? 'Delayed' : 'Offline'}</div>
       <div class="bot-meta">
         <div class="bot-meta-item">
-          <div class="bot-meta-label">Live Balance</div>
-          <div class="bot-meta-value">${live.balance != null ? '$'+live.balance.toFixed(2) : '—'}</div>
+          <div class="bot-meta-label">Account Value</div>
+          <div class="bot-meta-value">${balance != null ? '$'+Number(balance).toFixed(2) : '—'}</div>
         </div>
         <div class="bot-meta-item">
           <div class="bot-meta-label">Total Alerts</div>
@@ -525,11 +545,11 @@ function buildKalshiCard() {
           <div class="bot-meta-value">${stats.hit_rate != null ? stats.hit_rate + '%' : '—'}</div>
         </div>
         <div class="bot-meta-item">
-          <div class="bot-meta-label">Live P&amp;L</div>
-          <div class="bot-meta-value ${pnlClass(pnl)}">${pnlStr(pnl)}</div>
+          <div class="bot-meta-label">P&amp;L / Units</div>
+          <div class="bot-meta-value ${pnlClass(pnl)}">${pnlStr(pnl)}${uStr ? ' <span style="font-size:12px;color:' + (units >= 0 ? 'var(--green)' : 'var(--red)') + '">' + uStr + '</span>' : ''}</div>
         </div>
       </div>
-      ${dryRun ? '<div style="margin-top:10px"><span class="tag" style="background:rgba(88,166,255,.1);color:var(--blue);border:1px solid rgba(88,166,255,.3)">🔵 DRY RUN MODE</span></div>' : '<div style="margin-top:10px"><span class="tag" style="background:rgba(63,185,80,.1);color:var(--green);border:1px solid var(--green)">✅ LIVE BETTING</span></div>'}
+      ${!dryRun ? '<div style="margin-top:10px"><span class="tag" style="background:rgba(63,185,80,.1);color:var(--green);border:1px solid var(--green)">✅ LIVE BETTING</span></div>' : ''}
     </div>
   </div>`;
 }
@@ -537,8 +557,10 @@ function buildKalshiCard() {
 function buildOptionsCard() {
   const d = data.options;
   if (!d) return botLoadError('Options Bot');
-  const status = statusFromAge(d.generated_at, 120);
+  const status = statusFromAge(d.last_scan_ts || d.generated_at, 120);
   const stats  = d.stats || {};
+  const units  = d.unit_total;
+  const uStr   = units != null ? (units >= 0 ? '+' : '') + units.toFixed(1) + 'u' : null;
   return `
   <div class="card bot-card">
     <div class="card-body">
@@ -558,8 +580,8 @@ function buildOptionsCard() {
           <div class="bot-meta-value">${stats.overall_hit_rate != null ? stats.overall_hit_rate + '%' : '—'}</div>
         </div>
         <div class="bot-meta-item">
-          <div class="bot-meta-label">Rated Bets</div>
-          <div class="bot-meta-value">${stats.rated_count ?? '—'}</div>
+          <div class="bot-meta-label">Units P&amp;L</div>
+          <div class="bot-meta-value ${units != null ? pnlClass(units) : 'pnl-zero'}">${uStr ?? '—'}</div>
         </div>
       </div>
     </div>
@@ -575,27 +597,48 @@ function botLoadError(name) {
 }
 
 // ── Render P&L panel ───────────────────────────────────────────────────────
+function unitStr(u) {
+  if (u == null) return null;
+  return (u >= 0 ? '+' : '') + Number(u).toFixed(1) + 'u';
+}
+function unitColor(u) {
+  if (u == null) return 'var(--muted)';
+  return u >= 0 ? 'var(--green)' : 'var(--red)';
+}
 function renderPnL() {
-  const fd  = data.fanduel?.stats?.total_pl ?? null;
-  const kb  = data.kalshi?.live_pnl ?? null;
-  const op  = null; // options-bot doesn't track dollar P&L yet
-  const total = [fd, kb, op].filter(x => x !== null).reduce((a,b) => a+b, 0);
+  const fd_pl = data.fanduel?.stats?.total_pl ?? null;
+  const kb_pl = data.kalshi?.live_pnl ?? null;
+  const fd_u  = data.fanduel?.unit_total ?? null;
+  const kb_u  = data.kalshi?.unit_total ?? null;
+  const op_u  = data.options?.unit_total ?? null;
 
-  const rows = [
-    { label: '⚾ FanDuel',  val: fd },
-    { label: '📊 Kalshi',   val: kb },
-    { label: '📈 Options',  val: op },
-  ];
+  const pl_vals   = [fd_pl, kb_pl].filter(x => x !== null);
+  const total_pl  = pl_vals.reduce((a,b) => a+b, 0);
+
+  const u_vals    = [fd_u, kb_u, op_u].filter(x => x !== null);
+  const total_u   = u_vals.length ? u_vals.reduce((a,b) => a+b, 0) : null;
+
+  function pnlRow(label, pl, u) {
+    const us = unitStr(u);
+    return `<div class="pnl-row">
+      <div class="pnl-label">${label}</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="pnl-amount ${pnlClass(pl)}">${pnlStr(pl)}</div>
+        ${us ? `<div style="font-size:13px;font-weight:700;color:${unitColor(u)}">${us}</div>` : ''}
+      </div>
+    </div>`;
+  }
 
   document.getElementById('pnl-panel').innerHTML = `
-    ${rows.map(r => `
-      <div class="pnl-row">
-        <div class="pnl-label">${r.label}</div>
-        <div class="pnl-amount ${pnlClass(r.val)}">${pnlStr(r.val)}</div>
-      </div>`).join('')}
+    ${pnlRow('⚾ FanDuel', fd_pl, fd_u)}
+    ${pnlRow('📊 Kalshi',  kb_pl, kb_u)}
+    ${pnlRow('📈 Options', null,  op_u)}
     <div class="pnl-row" style="margin-top:4px">
       <div class="pnl-label" style="color:var(--text);font-weight:700">TOTAL</div>
-      <div class="pnl-amount pnl-total ${pnlClass(total)}">${pnlStr(total)}</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="pnl-amount pnl-total ${pnlClass(total_pl)}">${pnlStr(total_pl)}</div>
+        ${total_u != null ? `<div style="font-size:18px;font-weight:700;color:${unitColor(total_u)}">${unitStr(total_u)}</div>` : ''}
+      </div>
     </div>
   `;
 }
@@ -680,7 +723,7 @@ function renderAlerts() {
   });
 
   // Sort by timestamp desc
-  allAlerts.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+  allAlerts.sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
 
   document.getElementById('alert-count').textContent = allAlerts.length + ' total';
 
@@ -753,7 +796,7 @@ function renderHitRates() {
 // ── Render auto-bet log ────────────────────────────────────────────────────
 function renderAutoBetLog() {
   const bets = data.kalshi?.bets_placed || [];
-  const dryRun = data.kalshi?.dry_run !== false;
+  const dryRun = data.kalshi?.dry_run === true;
 
   document.getElementById('dry-run-badge').innerHTML = dryRun
     ? '<span class="dry-tag">DRY RUN</span>'

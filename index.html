@@ -8,6 +8,7 @@
   :root {
     --bg:      #0d1117;
     --surface: #161b22;
+    --surface2:#1c2129;
     --border:  #30363d;
     --text:    #e6edf3;
     --muted:   #8b949e;
@@ -19,251 +20,115 @@
     --orange:  #ffa657;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
 
-  /* ── Header ── */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 100; }
+  .header h1 { font-size: 17px; font-weight: 700; }
   .header h1 span { color: var(--blue); }
-  .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .refresh-info { color: var(--muted); font-size: 12px; }
-  .live-badge {
-    background: rgba(63,185,80,.15);
-    border: 1px solid var(--green);
-    color: var(--green);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
+  .header-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .live-badge { background: rgba(63,185,80,.15); border: 1px solid var(--green); color: var(--green); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
   .live-badge::before { content: '● '; }
+  .refresh-info { color: var(--muted); font-size: 12px; }
 
-  /* ── Layout ── */
-  .page { max-width: 1400px; margin: 0 auto; padding: 24px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
-  .grid-1 { margin-bottom: 20px; }
-  @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
-  @media (max-width: 600px) { .page { padding: 12px; } }
+  .page { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+  .g2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
+  .g1 { margin-bottom: 16px; }
+  @media (max-width: 900px) { .g3,.g2 { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .page { padding: 10px 12px; } }
 
-  /* ── Cards ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 14px 18px 10px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .card-title {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--muted);
-  }
-  .card-body { padding: 16px 18px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .card-hdr { padding: 12px 16px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+  .card-body { padding: 14px 16px; }
 
-  /* ── Bot status cards ── */
-  .bot-card { position: relative; }
-  .bot-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .bot-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 2px 10px;
-    border-radius: 20px;
-    margin-bottom: 12px;
-  }
-  .bot-status.ok    { background: rgba(63,185,80,.15);  color: var(--green);  border: 1px solid var(--green); }
-  .bot-status.warn  { background: rgba(210,153,34,.15); color: var(--yellow); border: 1px solid var(--yellow); }
-  .bot-status.error { background: rgba(248,81,73,.15);  color: var(--red);    border: 1px solid var(--red); }
-  .bot-status.loading { background: rgba(88,166,255,.1); color: var(--blue);  border: 1px solid var(--blue); }
-  .bot-status::before { content: '●'; font-size: 8px; }
-  .bot-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .bot-meta-item { }
-  .bot-meta-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
-  .bot-meta-value { font-size: 15px; font-weight: 700; }
-  .pnl-pos { color: var(--green); }
-  .pnl-neg { color: var(--red); }
-  .pnl-zero { color: var(--muted); }
+  /* section labels */
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 20px 0 10px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* ── P&L summary ── */
-  .pnl-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .pnl-row:last-child { border-bottom: none; }
-  .pnl-label { color: var(--muted); font-size: 13px; }
-  .pnl-amount { font-size: 18px; font-weight: 700; }
-  .pnl-total { font-size: 22px; }
+  /* hero units strip */
+  .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 24px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .hero-total { display: flex; align-items: baseline; gap: 8px; }
+  .hero-num { font-size: 42px; font-weight: 800; line-height: 1; }
+  .hero-label { font-size: 13px; color: var(--muted); }
+  .hero-bots { display: flex; gap: 24px; flex-wrap: wrap; }
+  .hero-bot { text-align: center; }
+  .hero-bot-name { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .hero-bot-val { font-size: 18px; font-weight: 700; }
 
-  /* ── Bankroll bar ── */
-  .bankroll-item { margin-bottom: 14px; }
-  .bankroll-item:last-child { margin-bottom: 0; }
-  .bankroll-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
-  .bankroll-bar-track {
-    background: var(--bg);
-    border-radius: 4px;
-    height: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-  .bankroll-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-  }
-  .bar-blue   { background: var(--blue); }
-  .bar-purple { background: var(--purple); }
-  .bar-green  { background: var(--green); }
-  .bar-orange { background: var(--orange); }
+  /* status cards */
+  .bot-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; margin-bottom: 10px; }
+  .status-pill::before { content: '●'; font-size: 7px; }
+  .ok    { background: rgba(63,185,80,.15);  color: var(--green);  border: 1px solid var(--green); }
+  .warn  { background: rgba(210,153,34,.15); color: var(--yellow); border: 1px solid var(--yellow); }
+  .err   { background: rgba(248,81,73,.15);  color: var(--red);    border: 1px solid var(--red); }
+  .loading { background: rgba(88,166,255,.1); color: var(--blue);  border: 1px solid var(--blue); }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .meta-label { font-size: 11px; color: var(--muted); margin-bottom: 1px; }
+  .meta-value { font-size: 15px; font-weight: 700; }
+  .meta-value.sm { font-size: 12px; }
+  .pos { color: var(--green); } .neg { color: var(--red); } .neu { color: var(--muted); }
+  .record-badge { font-size: 12px; font-weight: 700; }
+  .w-badge { color: var(--green); } .l-badge { color: var(--red); } .p-badge { color: var(--muted); }
 
-  /* ── Alerts feed ── */
-  .alert-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 10px;
-    align-items: start;
-  }
+  /* bet list */
+  .bet-item { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: start; }
+  .bet-item:last-child { border-bottom: none; }
+  .outcome-icon { font-size: 14px; align-self: center; }
+  .bet-game { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .bet-sub { font-size: 11px; color: var(--muted); }
+  .bet-edge { font-size: 12px; font-weight: 700; white-space: nowrap; align-self: center; }
+
+  /* alerts feed */
+  .alert-item { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: start; }
   .alert-item:last-child { border-bottom: none; }
-  .alert-source {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    white-space: nowrap;
-    align-self: center;
-  }
-  .src-fanduel { background: rgba(88,166,255,.2); color: var(--blue); border: 1px solid rgba(88,166,255,.4); }
-  .src-kalshi  { background: rgba(188,140,255,.2); color: var(--purple); border: 1px solid rgba(188,140,255,.4); }
-  .src-options { background: rgba(255,166,87,.2); color: var(--orange); border: 1px solid rgba(255,166,87,.4); }
-  .alert-text { line-height: 1.4; }
-  .alert-title { font-weight: 600; margin-bottom: 2px; }
-  .alert-sub { font-size: 12px; color: var(--muted); }
-  .alert-edge {
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    align-self: center;
-  }
+  .alert-src { padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; white-space: nowrap; align-self: center; }
+  .src-fd  { background: rgba(88,166,255,.15); color: var(--blue);   border: 1px solid rgba(88,166,255,.4); }
+  .src-kal { background: rgba(188,140,255,.15); color: var(--purple); border: 1px solid rgba(188,140,255,.4); }
+  .src-opt { background: rgba(255,166,87,.15);  color: var(--orange); border: 1px solid rgba(255,166,87,.4); }
+  .alert-title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .alert-sub { font-size: 11px; color: var(--muted); }
+  .alert-edge { font-size: 13px; font-weight: 700; white-space: nowrap; align-self: center; }
 
-  /* ── Auto-bet log ── */
-  .bet-row {
-    display: grid;
-    grid-template-columns: 90px 1fr 60px 70px 70px 80px;
-    gap: 8px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    align-items: center;
-    font-size: 13px;
-  }
-  .bet-row:last-child { border-bottom: none; }
-  .bet-row-header { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
-  @media (max-width: 700px) {
-    .bet-row { grid-template-columns: 1fr 1fr; gap: 6px; }
-    .bet-row-header { display: none; }
-  }
-  .dir-yes { color: var(--green); font-weight: 700; }
-  .dir-no  { color: var(--red);   font-weight: 700; }
-  .dry-tag {
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 3px;
-    background: rgba(88,166,255,.15);
-    color: var(--blue);
-    border: 1px solid rgba(88,166,255,.3);
-  }
-  .live-tag {
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 3px;
-    background: rgba(63,185,80,.15);
-    color: var(--green);
-    border: 1px solid var(--green);
-  }
+  /* open positions */
+  .pos-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .pos-ticker { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .pos-title { font-size: 11px; color: var(--muted); margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+  .pos-label { font-size: 10px; color: var(--muted); }
+  .pos-val { font-size: 13px; font-weight: 600; }
+  .pos-grid-wrap { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
 
-  /* ── Hit rate table ── */
-  .stat-table { width: 100%; border-collapse: collapse; }
-  .stat-table th, .stat-table td {
-    text-align: left;
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-  .stat-table th { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
-  .stat-table tr:last-child td { border-bottom: none; }
-  .rate-bar {
-    height: 6px;
-    background: var(--bg);
-    border-radius: 3px;
-    overflow: hidden;
-    min-width: 60px;
-  }
+  /* hit rate table */
+  .stat-tbl { width: 100%; border-collapse: collapse; }
+  .stat-tbl th, .stat-tbl td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .stat-tbl th { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .stat-tbl tr:last-child td { border-bottom: none; }
+  .rate-bar { height: 5px; background: var(--bg); border-radius: 3px; overflow: hidden; min-width: 50px; }
   .rate-fill { height: 100%; border-radius: 3px; background: var(--blue); }
 
-  /* ── Loading skeleton ── */
-  .skeleton { background: var(--border); border-radius: 4px; animation: shimmer 1.5s infinite; }
-  @keyframes shimmer {
-    0%   { opacity: .4; }
-    50%  { opacity: .8; }
-    100% { opacity: .4; }
-  }
+  /* auto-bet log */
+  .bet-row { display: grid; grid-template-columns: 90px 1fr 55px 65px 70px 70px; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: center; font-size: 12px; }
+  .bet-row:last-child { border-bottom: none; }
+  .bet-row-hdr { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .tag-dry  { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(88,166,255,.1); color: var(--blue); border: 1px solid rgba(88,166,255,.3); }
+  .tag-live { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(63,185,80,.1); color: var(--green); border: 1px solid var(--green); }
+  .tag-live2 { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(63,185,80,.1); color: var(--green); border: 1px solid var(--green); font-weight: 700; }
+  .dir-yes { color: var(--green); font-weight: 700; }
+  .dir-no  { color: var(--red);   font-weight: 700; }
 
-  /* ── Misc ── */
-  .empty-state { color: var(--muted); text-align: center; padding: 24px; font-size: 13px; }
-  .section-divider {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--muted);
-    letter-spacing: 1px;
-    margin: 24px 0 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-  }
+  /* bankroll bar */
+  .br-item { margin-bottom: 12px; }
+  .br-item:last-child { margin-bottom: 0; }
+  .br-hdr { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
+  .br-track { background: var(--bg); border-radius: 3px; height: 7px; overflow: hidden; border: 1px solid var(--border); }
+  .br-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+  .bar-blue { background: var(--blue); } .bar-purple { background: var(--purple); } .bar-green { background: var(--green); }
+
+  .skeleton { background: var(--border); border-radius: 4px; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0%,100%{opacity:.4} 50%{opacity:.8} }
+  .empty { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -271,83 +136,78 @@
 <div class="header">
   <h1>⚡ Bot <span>Command Center</span></h1>
   <div class="header-right">
-    <div class="live-badge">LIVE</div>
+    <div class="live-badge">ALL BOTS LIVE</div>
     <div class="refresh-info" id="refresh-info">Loading…</div>
   </div>
 </div>
 
 <div class="page">
 
-  <!-- ── Bot Status Row ── -->
-  <div class="section-divider">Bot Status</div>
-  <div class="grid-3" id="bot-status-row">
-    <div class="card bot-card"><div class="card-body">
-      <div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div>
-      <div class="skeleton" style="height:24px;width:80px;margin-bottom:12px"></div>
-      <div class="skeleton" style="height:40px"></div>
-    </div></div>
-    <div class="card bot-card"><div class="card-body">
-      <div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div>
-      <div class="skeleton" style="height:24px;width:80px;margin-bottom:12px"></div>
-      <div class="skeleton" style="height:40px"></div>
-    </div></div>
-    <div class="card bot-card"><div class="card-body">
-      <div class="skeleton" style="height:16px;width:100px;margin-bottom:8px"></div>
-      <div class="skeleton" style="height:24px;width:80px;margin-bottom:12px"></div>
-      <div class="skeleton" style="height:40px"></div>
-    </div></div>
+  <!-- Hero unit strip -->
+  <div class="hero" id="hero-strip">
+    <div class="skeleton" style="height:52px;width:200px;border-radius:8px"></div>
   </div>
 
-  <!-- ── P&L + Bankroll ── -->
-  <div class="grid-2">
+  <!-- Bot status cards -->
+  <div class="section-label">Bot Status</div>
+  <div class="g3" id="status-cards">
+    <div class="card"><div class="card-body"><div class="skeleton" style="height:100px"></div></div></div>
+    <div class="card"><div class="card-body"><div class="skeleton" style="height:100px"></div></div></div>
+    <div class="card"><div class="card-body"><div class="skeleton" style="height:100px"></div></div></div>
+  </div>
+
+  <!-- FanDuel bets + Kalshi positions -->
+  <div class="g2">
     <div class="card">
-      <div class="card-header">
-        <div class="card-title">Total P&amp;L</div>
+      <div class="card-hdr">
+        <div class="card-title">⚾ FanDuel — Today's Alerts</div>
+        <div id="fd-count" style="font-size:12px;color:var(--muted)"></div>
       </div>
-      <div class="card-body" id="pnl-panel">
-        <div class="skeleton" style="height:80px"></div>
-      </div>
+      <div class="card-body" id="fd-bets"><div class="skeleton" style="height:100px"></div></div>
     </div>
     <div class="card">
-      <div class="card-header">
-        <div class="card-title">Bankroll Tracker</div>
+      <div class="card-hdr">
+        <div class="card-title">📊 Kalshi — Open Positions</div>
+        <div id="kal-pos-count" style="font-size:12px;color:var(--muted)"></div>
       </div>
-      <div class="card-body" id="bankroll-panel">
-        <div class="skeleton" style="height:80px"></div>
-      </div>
+      <div class="card-body" id="kal-positions"><div class="skeleton" style="height:100px"></div></div>
     </div>
   </div>
 
-  <!-- ── Today's Alerts Feed ── -->
-  <div class="section-divider">Today's Alerts Feed</div>
-  <div class="card grid-1">
-    <div class="card-header">
-      <div class="card-title">All Bots — Unified Alert Stream</div>
-      <div id="alert-count" style="font-size:12px;color:var(--muted)"></div>
+  <!-- Unified alerts feed -->
+  <div class="section-label">Live Alert Feed — All Bots</div>
+  <div class="card g1">
+    <div class="card-hdr">
+      <div class="card-title">Recent Signals</div>
+      <div id="feed-count" style="font-size:12px;color:var(--muted)"></div>
     </div>
-    <div class="card-body" id="alerts-feed">
-      <div class="skeleton" style="height:120px"></div>
+    <div class="card-body" id="alert-feed"><div class="skeleton" style="height:120px"></div></div>
+  </div>
+
+  <!-- P&L + Bankroll -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">P&amp;L Summary</div></div>
+      <div class="card-body" id="pnl-panel"><div class="skeleton" style="height:80px"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Bankroll Tracker</div></div>
+      <div class="card-body" id="bankroll-panel"><div class="skeleton" style="height:80px"></div></div>
     </div>
   </div>
 
-  <!-- ── Weekly Hit Rates + Auto-bet Log ── -->
-  <div class="grid-2">
+  <!-- Hit rates + Kalshi auto-bet log -->
+  <div class="g2">
     <div class="card">
-      <div class="card-header">
-        <div class="card-title">Weekly Hit Rates</div>
-      </div>
-      <div class="card-body" id="hit-rates-panel">
-        <div class="skeleton" style="height:120px"></div>
-      </div>
+      <div class="card-hdr"><div class="card-title">Hit Rates by Category</div></div>
+      <div class="card-body" id="hit-rates"><div class="skeleton" style="height:100px"></div></div>
     </div>
     <div class="card">
-      <div class="card-header">
+      <div class="card-hdr">
         <div class="card-title">Kalshi Auto-Bet Log</div>
-        <div id="dry-run-badge"></div>
+        <div id="kal-mode-badge"></div>
       </div>
-      <div class="card-body" id="autobet-log">
-        <div class="skeleton" style="height:120px"></div>
-      </div>
+      <div class="card-body" id="autobet-log"><div class="skeleton" style="height:100px"></div></div>
     </div>
   </div>
 
@@ -355,498 +215,553 @@
 
 <script>
 const BOTS = {
-  fanduel: {
-    name: 'FanDuel Bot',
-    color: 'var(--blue)',
-    url: 'https://raw.githubusercontent.com/mehpackers13/fanduel-bot/main/docs/data.json',
-    srcClass: 'src-fanduel',
-  },
-  kalshi: {
-    name: 'Kalshi Bot',
-    color: 'var(--purple)',
-    url: 'https://raw.githubusercontent.com/mehpackers13/kalshi-bot/main/docs/data.json',
-    srcClass: 'src-kalshi',
-  },
-  options: {
-    name: 'Options Bot',
-    color: 'var(--orange)',
-    url: 'https://raw.githubusercontent.com/mehpackers13/options-bot/main/docs/data.json',
-    srcClass: 'src-options',
-  },
+  fanduel: { url: 'https://raw.githubusercontent.com/mehpackers13/fanduel-bot/main/docs/data.json' },
+  kalshi:  { url: 'https://raw.githubusercontent.com/mehpackers13/kalshi-bot/main/docs/data.json' },
+  options: { url: 'https://raw.githubusercontent.com/mehpackers13/options-bot/main/docs/data.json' },
 };
 
-let data = { fanduel: null, kalshi: null, options: null };
+let D = { fanduel: null, kalshi: null, options: null };
 let lastRefresh = null;
 
-// ── Fetch helpers ──────────────────────────────────────────────────────────
-async function fetchBot(key) {
-  try {
-    const url = BOTS[key].url + '?_=' + Date.now();
-    const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  } catch(e) {
-    console.warn(key + ' fetch failed:', e);
-    return null;
-  }
-}
-
-async function refreshAll() {
-  const results = await Promise.all([
-    fetchBot('fanduel'),
-    fetchBot('kalshi'),
-    fetchBot('options'),
-  ]);
-  data.fanduel = results[0];
-  data.kalshi  = results[1];
-  data.options = results[2];
-  lastRefresh  = new Date();
-  render();
-  scheduleNext();
-}
-
-function scheduleNext() {
-  const el = document.getElementById('refresh-info');
-  let secs = 300;
-  const tick = () => {
-    const m = Math.floor(secs / 60), s = secs % 60;
-    el.textContent = `Last: ${lastRefresh.toLocaleTimeString()} — refresh in ${m}:${s.toString().padStart(2,'0')}`;
-    if (secs-- > 0) setTimeout(tick, 1000);
-    else refreshAll();
-  };
-  tick();
-}
-
-// ── Utilities ──────────────────────────────────────────────────────────────
-function pnlClass(v) {
-  if (v > 0) return 'pnl-pos';
-  if (v < 0) return 'pnl-neg';
-  return 'pnl-zero';
-}
-function pnlStr(v) {
-  if (v === null || v === undefined) return '—';
-  const s = v >= 0 ? '+' : '';
-  return s + '$' + Math.abs(v).toFixed(2);
-}
-function parseTs(tsStr) {
-  if (!tsStr) return NaN;
-  // Handle: "2026-04-13 21:55 ET", "2026-04-14 10:44:39", "2026-04-09T12:01:14.347582Z"
-  let s = String(tsStr).trim();
-  s = s.replace(/\s+ET$/, '');      // strip trailing " ET"
-  s = s.replace(' ', 'T');           // space → T
-  if (!s.includes('Z') && !s.match(/[+-]\d{2}:\d{2}$/)) s += 'Z';  // assume UTC
+// ── Timestamp helpers ────────────────────────────────────────────────────────
+function parseTs(s) {
+  if (!s) return NaN;
+  s = String(s).trim().replace(/\s+ET$/, '').replace(' ', 'T');
+  if (!s.includes('Z') && !s.match(/[+-]\d{2}:\d{2}$/)) s += 'Z';
   return new Date(s).getTime();
 }
-function ago(tsStr) {
-  if (!tsStr) return '—';
-  const ms = parseTs(tsStr);
+function ago(s) {
+  const ms = parseTs(s);
   if (isNaN(ms)) return '—';
-  const diff = (Date.now() - ms) / 1000;
-  if (diff < 0) return 'just now';
-  if (diff < 120) return 'just now';
-  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-  return Math.floor(diff/86400) + 'd ago';
+  const d = (Date.now() - ms) / 1000;
+  if (d < 0)     return 'just now';
+  if (d < 120)   return 'just now';
+  if (d < 3600)  return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
+  return Math.floor(d/86400) + 'd ago';
 }
-function statusFromAge(tsStr, maxMinutes) {
-  if (!tsStr) return 'error';
-  const ms = parseTs(tsStr);
-  if (isNaN(ms)) return 'error';
-  const diff = (Date.now() - ms) / 60000;
-  if (diff > maxMinutes * 2) return 'error';
-  if (diff > maxMinutes * 1.5) return 'warn';
+function statusFromAge(s, maxMin) {
+  const ms = parseTs(s);
+  if (isNaN(ms)) return 'err';
+  const d = (Date.now() - ms) / 60000;
+  if (d > maxMin * 2)   return 'err';
+  if (d > maxMin * 1.5) return 'warn';
   return 'ok';
 }
-function isToday(tsStr) {
-  if (!tsStr) return false;
-  const ms = parseTs(tsStr);
-  if (isNaN(ms)) return false;
-  const d = new Date(ms), today = new Date();
-  return d.getUTCFullYear() === today.getUTCFullYear() &&
-         d.getUTCMonth()    === today.getUTCMonth() &&
-         d.getUTCDate()     === today.getUTCDate();
+function statusLabel(s) {
+  return s === 'ok' ? 'Running' : s === 'warn' ? 'Delayed' : 'Offline';
 }
 
-// ── Render bot status cards ────────────────────────────────────────────────
-function renderBotCards() {
-  const row = document.getElementById('bot-status-row');
-
-  const cards = [
-    buildFanDuelCard(),
-    buildKalshiCard(),
-    buildOptionsCard(),
-  ];
-  row.innerHTML = cards.join('');
+// ── Formatting ───────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
-function buildFanDuelCard() {
-  const d = data.fanduel;
-  if (!d) return botLoadError('FanDuel Bot');
-  const status = statusFromAge(d.last_scan_ts || d.generated_at, 120);
-  const stats  = d.stats || {};
-  const pnl    = stats.total_pl ?? null;
-  const units  = d.unit_total;
-  const uStr   = units != null ? (units >= 0 ? '+' : '') + units.toFixed(1) + 'u' : null;
-  return `
-  <div class="card bot-card">
-    <div class="card-body">
-      <div class="bot-name">⚾ FanDuel Bot</div>
-      <div class="bot-status ${status}">${status === 'ok' ? 'Running' : status === 'warn' ? 'Delayed' : 'Offline'}</div>
-      <div class="bot-meta">
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Last Scan</div>
-          <div class="bot-meta-value" style="font-size:13px">${d.last_scan ? d.last_scan.replace(' ET','') : '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Total Alerts</div>
-          <div class="bot-meta-value">${stats.total_alerts ?? '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Win Rate</div>
-          <div class="bot-meta-value">${stats.win_rate != null ? stats.win_rate + '%' : '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">P&amp;L / Units</div>
-          <div class="bot-meta-value ${pnlClass(pnl)}">${pnlStr(pnl)}${uStr ? ' <span style="font-size:12px;color:' + (units >= 0 ? 'var(--green)' : 'var(--red)') + '">' + uStr + '</span>' : ''}</div>
-        </div>
-      </div>
-    </div>
-  </div>`;
+function pnlCls(v) { return v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu'; }
+function pnlStr(v) {
+  if (v == null) return '—';
+  return (v >= 0 ? '+' : '') + '$' + Math.abs(v).toFixed(2);
 }
-
-function buildKalshiCard() {
-  const d = data.kalshi;
-  if (!d) return botLoadError('Kalshi Bot');
-  const status  = statusFromAge(d.last_scan_ts || d.generated_at, 120);
-  const stats   = d.stats || {};
-  const br      = d.bankroll || {};
-  const live    = br.live || {};
-  const balance = d.account_value ?? live.balance;
-  const pnl     = d.live_pnl ?? null;
-  const units   = d.unit_total;
-  const uStr    = units != null ? (units >= 0 ? '+' : '') + units.toFixed(1) + 'u' : null;
-  const dryRun  = d.dry_run === true;
-  return `
-  <div class="card bot-card">
-    <div class="card-body">
-      <div class="bot-name">📊 Kalshi Bot</div>
-      <div class="bot-status ${status}">${status === 'ok' ? 'Running' : status === 'warn' ? 'Delayed' : 'Offline'}</div>
-      <div class="bot-meta">
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Account Value</div>
-          <div class="bot-meta-value">${balance != null ? '$'+Number(balance).toFixed(2) : '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Total Alerts</div>
-          <div class="bot-meta-value">${stats.total_alerts ?? '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Hit Rate</div>
-          <div class="bot-meta-value">${stats.hit_rate != null ? stats.hit_rate + '%' : '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">P&amp;L / Units</div>
-          <div class="bot-meta-value ${pnlClass(pnl)}">${pnlStr(pnl)}${uStr ? ' <span style="font-size:12px;color:' + (units >= 0 ? 'var(--green)' : 'var(--red)') + '">' + uStr + '</span>' : ''}</div>
-        </div>
-      </div>
-      ${!dryRun ? '<div style="margin-top:10px"><span class="tag" style="background:rgba(63,185,80,.1);color:var(--green);border:1px solid var(--green)">✅ LIVE BETTING</span></div>' : ''}
-    </div>
-  </div>`;
-}
-
-function buildOptionsCard() {
-  const d = data.options;
-  if (!d) return botLoadError('Options Bot');
-  const status = statusFromAge(d.last_scan_ts || d.generated_at, 120);
-  const stats  = d.stats || {};
-  const units  = d.unit_total;
-  const uStr   = units != null ? (units >= 0 ? '+' : '') + units.toFixed(1) + 'u' : null;
-  return `
-  <div class="card bot-card">
-    <div class="card-body">
-      <div class="bot-name">📈 Options Bot</div>
-      <div class="bot-status ${status}">${status === 'ok' ? 'Running' : status === 'warn' ? 'Delayed' : 'Offline'}</div>
-      <div class="bot-meta">
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Last Scan</div>
-          <div class="bot-meta-value" style="font-size:13px">${d.last_scan ? d.last_scan.replace(' ET','') : '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Total Alerts</div>
-          <div class="bot-meta-value">${stats.total_alerts ?? '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Hit Rate</div>
-          <div class="bot-meta-value">${stats.overall_hit_rate != null ? stats.overall_hit_rate + '%' : '—'}</div>
-        </div>
-        <div class="bot-meta-item">
-          <div class="bot-meta-label">Units P&amp;L</div>
-          <div class="bot-meta-value ${units != null ? pnlClass(units) : 'pnl-zero'}">${uStr ?? '—'}</div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function botLoadError(name) {
-  return `<div class="card bot-card"><div class="card-body">
-    <div class="bot-name">${name}</div>
-    <div class="bot-status error">Offline</div>
-    <div style="color:var(--muted);font-size:12px">Could not load data</div>
-  </div></div>`;
-}
-
-// ── Render P&L panel ───────────────────────────────────────────────────────
 function unitStr(u) {
   if (u == null) return null;
   return (u >= 0 ? '+' : '') + Number(u).toFixed(1) + 'u';
 }
-function unitColor(u) {
-  if (u == null) return 'var(--muted)';
-  return u >= 0 ? 'var(--green)' : 'var(--red)';
+function unitCls(u) { return u > 0 ? 'pos' : u < 0 ? 'neg' : 'neu'; }
+
+// ── Record helpers ────────────────────────────────────────────────────────────
+function calcFdRecord(bets) {
+  let w=0, l=0, p=0, pend=0;
+  for (const b of (bets||[])) {
+    const o = b.outcome;
+    if (o === 'W') w++;
+    else if (o === 'L') l++;
+    else if (o === 'P') p++;
+    else pend++;
+  }
+  return {w, l, p, pend};
 }
-function renderPnL() {
-  const fd_pl = data.fanduel?.stats?.total_pl ?? null;
-  const kb_pl = data.kalshi?.live_pnl ?? null;
-  const fd_u  = data.fanduel?.unit_total ?? null;
-  const kb_u  = data.kalshi?.unit_total ?? null;
-  const op_u  = data.options?.unit_total ?? null;
+function calcKalshiRecord(alerts) {
+  let w=0, l=0;
+  for (const a of (alerts||[])) {
+    if (a.outcome === '1') w++;
+    else if (a.outcome === '0') l++;
+  }
+  return {w, l};
+}
+function recordHtml(w, l, p) {
+  if (!w && !l && !p) return '<span class="neu">No outcomes yet</span>';
+  let parts = [];
+  if (w) parts.push(`<span class="w-badge record-badge">${w}W</span>`);
+  if (l) parts.push(`<span class="l-badge record-badge">${l}L</span>`);
+  if (p) parts.push(`<span class="p-badge record-badge">${p}P</span>`);
+  return parts.join(' ');
+}
+function outcomeIcon(outcome) {
+  if (outcome === 'W' || outcome === '1') return '✅';
+  if (outcome === 'L' || outcome === '0') return '❌';
+  if (outcome === 'P') return '⚪';
+  return '⏳';
+}
 
-  const pl_vals   = [fd_pl, kb_pl].filter(x => x !== null);
-  const total_pl  = pl_vals.reduce((a,b) => a+b, 0);
+// ── Fetch ────────────────────────────────────────────────────────────────────
+async function fetchBot(key) {
+  try {
+    const r = await fetch(BOTS[key].url + '?_=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch(e) { console.warn(key, e); return null; }
+}
+async function refreshAll() {
+  const [fd, kal, opt] = await Promise.all([fetchBot('fanduel'), fetchBot('kalshi'), fetchBot('options')]);
+  D.fanduel = fd; D.kalshi = kal; D.options = opt;
+  lastRefresh = new Date();
+  render();
+  schedule();
+}
+function schedule() {
+  const el = document.getElementById('refresh-info');
+  let s = 300;
+  const tick = () => {
+    const m = Math.floor(s/60), sec = String(s%60).padStart(2,'0');
+    el.textContent = `Refreshed ${lastRefresh.toLocaleTimeString()} — next in ${m}:${sec}`;
+    if (s-- > 0) setTimeout(tick, 1000); else refreshAll();
+  };
+  tick();
+}
 
-  const u_vals    = [fd_u, kb_u, op_u].filter(x => x !== null);
-  const total_u   = u_vals.length ? u_vals.reduce((a,b) => a+b, 0) : null;
+// ── Hero strip ────────────────────────────────────────────────────────────────
+function renderHero() {
+  const fd_u  = D.fanduel?.unit_total ?? null;
+  const kal_u = D.kalshi?.unit_total  ?? null;
+  const opt_u = D.options?.unit_total ?? null;
+  const vals  = [fd_u, kal_u, opt_u].filter(x => x != null);
+  const total = vals.length ? vals.reduce((a,b) => a+b, 0) : null;
 
-  function pnlRow(label, pl, u) {
-    const us = unitStr(u);
-    return `<div class="pnl-row">
-      <div class="pnl-label">${label}</div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div class="pnl-amount ${pnlClass(pl)}">${pnlStr(pl)}</div>
-        ${us ? `<div style="font-size:13px;font-weight:700;color:${unitColor(u)}">${us}</div>` : ''}
-      </div>
+  function botUnitHtml(name, u) {
+    const s = unitStr(u);
+    const cls = u != null ? unitCls(u) : 'neu';
+    return `<div class="hero-bot">
+      <div class="hero-bot-name">${name}</div>
+      <div class="hero-bot-val ${cls}">${s ?? '—'}</div>
     </div>`;
   }
 
-  document.getElementById('pnl-panel').innerHTML = `
-    ${pnlRow('⚾ FanDuel', fd_pl, fd_u)}
-    ${pnlRow('📊 Kalshi',  kb_pl, kb_u)}
-    ${pnlRow('📈 Options', null,  op_u)}
-    <div class="pnl-row" style="margin-top:4px">
-      <div class="pnl-label" style="color:var(--text);font-weight:700">TOTAL</div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div class="pnl-amount pnl-total ${pnlClass(total_pl)}">${pnlStr(total_pl)}</div>
-        ${total_u != null ? `<div style="font-size:18px;font-weight:700;color:${unitColor(total_u)}">${unitStr(total_u)}</div>` : ''}
+  const totalStr = total != null ? unitStr(total) : '—';
+  const totalCls = total != null ? unitCls(total) : 'neu';
+
+  document.getElementById('hero-strip').innerHTML = `
+    <div class="hero-total">
+      <div class="hero-num ${totalCls}">${totalStr}</div>
+      <div class="hero-label">Combined<br>Unit P&L</div>
+    </div>
+    <div class="hero-bots">
+      ${botUnitHtml('⚾ FanDuel', fd_u)}
+      ${botUnitHtml('📊 Kalshi', kal_u)}
+      ${botUnitHtml('📈 Options', opt_u)}
+    </div>`;
+}
+
+// ── Status cards ─────────────────────────────────────────────────────────────
+function renderStatusCards() {
+  document.getElementById('status-cards').innerHTML = [
+    buildFdCard(),
+    buildKalCard(),
+    buildOptCard(),
+  ].join('');
+}
+
+function buildFdCard() {
+  const d = D.fanduel;
+  if (!d) return errCard('⚾ FanDuel Bot');
+  const st = statusFromAge(d.last_scan_ts || d.generated_at, 120);
+  const rec = calcFdRecord(d.recent_bets);
+  const stats = d.stats || {};
+  const u = d.unit_total;
+  const pnl = stats.total_pl ?? null;
+  return `<div class="card">
+    <div class="card-body">
+      <div class="bot-name">⚾ FanDuel Bot</div>
+      <div class="status-pill ${st}">${statusLabel(st)}</div>
+      <div class="meta-grid">
+        <div>
+          <div class="meta-label">Record</div>
+          <div class="meta-value">${recordHtml(rec.w, rec.l, rec.p)}</div>
+        </div>
+        <div>
+          <div class="meta-label">Units P&L</div>
+          <div class="meta-value ${u != null ? unitCls(u) : 'neu'}">${unitStr(u) ?? '—'}</div>
+        </div>
+        <div>
+          <div class="meta-label">Total Alerts</div>
+          <div class="meta-value">${stats.total_alerts ?? '—'}</div>
+        </div>
+        <div>
+          <div class="meta-label">Last Scan</div>
+          <div class="meta-value sm">${ago(d.last_scan_ts || d.generated_at)}</div>
+        </div>
       </div>
     </div>
-  `;
+  </div>`;
 }
 
-// ── Render bankroll panel ──────────────────────────────────────────────────
+function buildKalCard() {
+  const d = D.kalshi;
+  if (!d) return errCard('📊 Kalshi Bot');
+  const st  = statusFromAge(d.last_scan_ts || d.generated_at, 120);
+  const rec = calcKalshiRecord(d.recent_alerts);
+  const br  = d.bankroll || {};
+  const live = br.live || {};
+  const acct = d.account_value ?? live.balance;
+  const u    = d.unit_total;
+  const pnl  = d.live_pnl ?? null;
+  const isLive = d.dry_run !== true;
+  return `<div class="card">
+    <div class="card-body">
+      <div class="bot-name">📊 Kalshi Bot</div>
+      <div class="status-pill ${st}">${statusLabel(st)}</div>
+      <div class="meta-grid">
+        <div>
+          <div class="meta-label">Record</div>
+          <div class="meta-value">${recordHtml(rec.w, rec.l, 0)}</div>
+        </div>
+        <div>
+          <div class="meta-label">Units P&L</div>
+          <div class="meta-value ${u != null ? unitCls(u) : 'neu'}">${unitStr(u) ?? '—'}</div>
+        </div>
+        <div>
+          <div class="meta-label">Account Value</div>
+          <div class="meta-value">${acct != null ? '$' + Number(acct).toFixed(2) : '—'}</div>
+        </div>
+        <div>
+          <div class="meta-label">Live P&L</div>
+          <div class="meta-value ${pnlCls(pnl)}">${pnlStr(pnl)}</div>
+        </div>
+      </div>
+      ${isLive ? '<div style="margin-top:10px"><span class="tag-live2">✅ LIVE BETTING</span></div>' : ''}
+    </div>
+  </div>`;
+}
+
+function buildOptCard() {
+  const d = D.options;
+  if (!d) return errCard('📈 Options Bot');
+  const st = statusFromAge(d.last_scan_ts || d.generated_at, 180);
+  const stats = d.stats || {};
+  const u = d.unit_total;
+  const alerts = d.alerts || [];
+  let hits=0, misses=0;
+  alerts.forEach(a => { if(a.outcome==='1') hits++; else if(a.outcome==='0') misses++; });
+  return `<div class="card">
+    <div class="card-body">
+      <div class="bot-name">📈 Options Bot</div>
+      <div class="status-pill ${st}">${statusLabel(st)}</div>
+      <div class="meta-grid">
+        <div>
+          <div class="meta-label">Record</div>
+          <div class="meta-value">${recordHtml(hits, misses, 0)}</div>
+        </div>
+        <div>
+          <div class="meta-label">Units P&L</div>
+          <div class="meta-value ${u != null ? unitCls(u) : 'neu'}">${unitStr(u) ?? '—'}</div>
+        </div>
+        <div>
+          <div class="meta-label">Total Signals</div>
+          <div class="meta-value">${stats.total_alerts ?? '—'}</div>
+        </div>
+        <div>
+          <div class="meta-label">Last Scan</div>
+          <div class="meta-value sm">${ago(d.generated_at)}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function errCard(name) {
+  return `<div class="card"><div class="card-body">
+    <div class="bot-name">${name}</div>
+    <div class="status-pill err">Offline</div>
+    <div class="muted" style="font-size:12px;color:var(--muted)">Could not load data.json</div>
+  </div></div>`;
+}
+
+// ── FanDuel bets panel ────────────────────────────────────────────────────────
+function renderFdBets() {
+  const bets = D.fanduel?.today_bets || D.fanduel?.recent_bets?.slice(0,10) || [];
+  const el = document.getElementById('fd-bets');
+  const cntEl = document.getElementById('fd-count');
+  cntEl.textContent = bets.length + ' today';
+  if (!bets.length) { el.innerHTML = '<div class="empty">No bets today yet</div>'; return; }
+  el.innerHTML = bets.map(b => {
+    const side = b.bet_side === 'home'
+      ? (b.game||'').split(' @ ').pop()
+      : (b.game||'').split(' @ ')[0];
+    const edge = parseFloat(b.edge_pct);
+    const eStr = isNaN(edge) ? '' : (edge >= 0 ? '+' : '') + edge.toFixed(1) + '%';
+    const eCls = edge > 15 ? 'pos' : edge > 5 ? 'yellow' : 'muted';
+    return `<div class="bet-item">
+      <div class="outcome-icon">${outcomeIcon(b.outcome)}</div>
+      <div>
+        <div class="bet-game">${esc(b.sport)} | ${esc(b.game||'')}</div>
+        <div class="bet-sub">${b.bet_type?.toUpperCase()} ${esc(side)} ${esc(b.line)} · ${ago(b.timestamp)} · conf ${b.confidence}</div>
+      </div>
+      <div class="bet-edge" style="color:${edge > 10 ? 'var(--green)' : 'var(--muted)'}">${eStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Kalshi positions panel ────────────────────────────────────────────────────
+function renderKalPositions() {
+  const pos = D.kalshi?.open_positions || [];
+  const el = document.getElementById('kal-positions');
+  const cntEl = document.getElementById('kal-pos-count');
+  cntEl.textContent = pos.length + ' open';
+  if (!pos.length) {
+    el.innerHTML = '<div class="empty">No open positions<br><span style="font-size:11px">Positions appear here when bets are placed</span></div>';
+    return;
+  }
+  el.innerHTML = `<div class="pos-grid-wrap">${pos.map(p => {
+    const pl = p.pl_dollars;
+    const plCls = pl > 0 ? 'pos' : pl < 0 ? 'neg' : 'neu';
+    const dir = p.direction || 'YES';
+    return `<div class="pos-card">
+      <div class="pos-ticker">${esc(p.ticker||'')} <span style="color:${dir==='YES'?'var(--green)':'var(--red)'};font-size:11px;font-weight:700">${dir}</span></div>
+      <div class="pos-title">${esc(p.title||p.ticker||'')}</div>
+      <div class="pos-grid">
+        <div><div class="pos-label">Contracts</div><div class="pos-val">${p.contracts||'—'}</div></div>
+        <div><div class="pos-label">Risked</div><div class="pos-val">$${Number(p.dollars_risked||0).toFixed(2)}</div></div>
+        <div><div class="pos-label">Entry</div><div class="pos-val">${p.entry_cents||'—'}¢</div></div>
+        <div><div class="pos-label">Current</div><div class="pos-val">${p.current_cents||'—'}¢</div></div>
+        <div><div class="pos-label">Value</div><div class="pos-val">$${Number(p.current_value||0).toFixed(2)}</div></div>
+        <div><div class="pos-label">P&L</div><div class="pos-val ${plCls}">${pl >= 0 ? '+' : ''}$${Number(pl||0).toFixed(2)}</div></div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── Unified alert feed ────────────────────────────────────────────────────────
+function renderAlertFeed() {
+  const all = [];
+
+  (D.fanduel?.recent_bets || []).slice(0,20).forEach(b => {
+    const side = b.bet_side === 'home'
+      ? (b.game||'').split(' @ ').pop()
+      : (b.game||'').split(' @ ')[0];
+    all.push({
+      ts: b.timestamp, src: 'fd',
+      title: (b.sport||'') + ' — ' + (b.game||''),
+      sub: (b.bet_type||'').toUpperCase() + ' ' + (side||'') + ' ' + (b.line||'') + ' · ' + (b.signals||''),
+      edge: parseFloat(b.edge_pct),
+      outcome: b.outcome,
+    });
+  });
+
+  (D.kalshi?.recent_alerts || []).slice(0,20).forEach(a => {
+    all.push({
+      ts: a.timestamp, src: 'kal',
+      title: a.title || a.ticker,
+      sub: (a.direction||'') + ' · conf ' + (a.confidence||'') + ' · ' + (a.category||''),
+      edge: parseFloat(a.edge_pct),
+      outcome: a.outcome,
+    });
+  });
+
+  (D.options?.alerts || []).slice(0,20).forEach(a => {
+    all.push({
+      ts: a.timestamp, src: 'opt',
+      title: (a.ticker||'') + ' — ' + (a.signal_label || a.signal_type||''),
+      sub: 'Price $' + (a.price_at_alert||'') + ' · conf ' + (a.confidence_score||''),
+      edge: NaN,
+      outcome: a.outcome,
+    });
+  });
+
+  all.sort((a,b) => (parseTs(b.ts)||0) - (parseTs(a.ts)||0));
+
+  const el = document.getElementById('alert-feed');
+  document.getElementById('feed-count').textContent = all.length + ' signals';
+  if (!all.length) { el.innerHTML = '<div class="empty">No alerts yet</div>'; return; }
+
+  const srcCls = { fd: 'src-fd', kal: 'src-kal', opt: 'src-opt' };
+  const srcLbl = { fd: 'FanDuel', kal: 'Kalshi', opt: 'Options' };
+
+  el.innerHTML = all.slice(0,30).map(a => {
+    const eStr = !isNaN(a.edge) ? (a.edge >= 0 ? '+' : '') + a.edge.toFixed(1) + '%' : '';
+    const eCls = a.edge > 0 ? 'pos' : a.edge < 0 ? 'neg' : 'neu';
+    return `<div class="alert-item">
+      <div class="alert-src ${srcCls[a.src]}">${srcLbl[a.src]}</div>
+      <div>
+        <div class="alert-title">${outcomeIcon(a.outcome)} ${esc(a.title)}</div>
+        <div class="alert-sub">${esc(a.sub)} · ${ago(a.ts)}</div>
+      </div>
+      ${eStr ? `<div class="alert-edge ${eCls}">${esc(eStr)}</div>` : '<div></div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── P&L panel ────────────────────────────────────────────────────────────────
+function renderPnL() {
+  const fd_pl  = D.fanduel?.stats?.total_pl ?? null;
+  const kal_pl = D.kalshi?.live_pnl         ?? null;
+  const fd_u   = D.fanduel?.unit_total      ?? null;
+  const kal_u  = D.kalshi?.unit_total       ?? null;
+  const opt_u  = D.options?.unit_total      ?? null;
+  const total_pl = [fd_pl, kal_pl].filter(x=>x!=null).reduce((a,b)=>a+b, 0);
+
+  function row(label, pl, u) {
+    const us = unitStr(u);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="color:var(--muted);font-size:13px">${label}</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:16px;font-weight:700" class="${pnlCls(pl)}">${pnlStr(pl)}</div>
+        ${us ? `<div style="font-size:13px;font-weight:700" class="${unitCls(u)}">${us}</div>` : ''}
+      </div>
+    </div>`;
+  }
+  const allUnits = [fd_u, kal_u, opt_u].filter(x=>x!=null);
+  const total_u = allUnits.length ? allUnits.reduce((a,b)=>a+b,0) : null;
+
+  document.getElementById('pnl-panel').innerHTML =
+    row('⚾ FanDuel', fd_pl, fd_u) +
+    row('📊 Kalshi',  kal_pl, kal_u) +
+    row('📈 Options', null,   opt_u) +
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-top:2px">
+      <div style="font-weight:700;font-size:14px">TOTAL</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:20px;font-weight:800" class="${pnlCls(total_pl)}">${pnlStr(total_pl)}</div>
+        ${total_u != null ? `<div style="font-size:18px;font-weight:800" class="${unitCls(total_u)}">${unitStr(total_u)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ── Bankroll panel ────────────────────────────────────────────────────────────
 function renderBankroll() {
   const items = [];
-
-  const kb = data.kalshi?.bankroll;
+  const kb = D.kalshi?.bankroll;
   if (kb?.live) {
-    const bal  = kb.live.balance  || 0;
-    const peak = kb.live.peak     || bal || 1;
-    items.push({ label: 'Kalshi Live', val: bal, peak, bar: 'bar-purple', prefix: '$' });
+    const bal = D.kalshi.account_value ?? kb.live.balance ?? 0;
+    const peak = kb.live.peak || bal || 1;
+    items.push({ label: 'Kalshi (live)', val: bal, peak, cls: 'bar-purple', pre: '$' });
   }
   if (kb?.paper) {
-    const bal  = kb.paper.balance || 0;
-    const peak = kb.paper.peak    || 1000;
-    items.push({ label: 'Kalshi Paper', val: bal, peak, bar: 'bar-blue', prefix: '$' });
+    const bal = kb.paper.balance ?? 0;
+    const peak = kb.paper.peak || 1000;
+    items.push({ label: 'Kalshi (paper)', val: bal, peak, cls: 'bar-blue', pre: '$' });
   }
-
-  const fd = data.fanduel;
-  if (fd) {
-    items.push({ label: 'FanDuel Bankroll', val: 1000, peak: 1000, bar: 'bar-green', prefix: '$' });
+  if (D.fanduel) {
+    items.push({ label: 'FanDuel', val: 1000, peak: 1000, cls: 'bar-green', pre: '$' });
   }
-
-  if (!items.length) {
-    document.getElementById('bankroll-panel').innerHTML = '<div class="empty-state">No bankroll data</div>';
-    return;
-  }
-
-  document.getElementById('bankroll-panel').innerHTML = items.map(item => {
-    const pct = Math.min(100, Math.max(2, item.peak > 0 ? (item.val / item.peak) * 100 : 100));
-    return `
-    <div class="bankroll-item">
-      <div class="bankroll-header">
-        <span style="font-weight:600">${item.label}</span>
-        <span>${item.prefix}${item.val.toFixed(2)} / peak ${item.prefix}${item.peak.toFixed(2)}</span>
+  if (!items.length) { document.getElementById('bankroll-panel').innerHTML = '<div class="empty">No data</div>'; return; }
+  document.getElementById('bankroll-panel').innerHTML = items.map(it => {
+    const pct = Math.min(100, Math.max(2, it.peak > 0 ? (it.val/it.peak)*100 : 100));
+    return `<div class="br-item">
+      <div class="br-hdr">
+        <span style="font-weight:600">${it.label}</span>
+        <span style="color:var(--muted)">${it.pre}${Number(it.val).toFixed(2)} / peak ${it.pre}${Number(it.peak).toFixed(2)}</span>
       </div>
-      <div class="bankroll-bar-track">
-        <div class="bankroll-bar-fill ${item.bar}" style="width:${pct}%"></div>
-      </div>
+      <div class="br-track"><div class="br-fill ${it.cls}" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
 }
 
-// ── Render unified alerts feed ─────────────────────────────────────────────
-function renderAlerts() {
-  const allAlerts = [];
-
-  // FanDuel: recent_bets
-  (data.fanduel?.recent_bets || []).slice(0, 20).forEach(b => {
-    allAlerts.push({
-      ts:     b.timestamp,
-      source: 'fanduel',
-      title:  `${b.sport} — ${b.game}`,
-      sub:    `${b.bet_type} ${b.bet_side} ${b.line} | ${b.signals}`,
-      edge:   b.edge_pct ? '+' + b.edge_pct + '%' : null,
-    });
-  });
-
-  // Kalshi: recent_alerts
-  (data.kalshi?.recent_alerts || []).slice(0, 20).forEach(a => {
-    const edge = parseFloat(a.edge_pct);
-    allAlerts.push({
-      ts:     a.timestamp,
-      source: 'kalshi',
-      title:  a.title || a.ticker,
-      sub:    `${a.direction || ''} | conf ${a.confidence || ''}`,
-      edge:   !isNaN(edge) ? (edge >= 0 ? '+' : '') + edge.toFixed(1) + '%' : null,
-    });
-  });
-
-  // Options: alerts
-  (data.options?.alerts || []).slice(0, 20).forEach(a => {
-    allAlerts.push({
-      ts:     a.timestamp,
-      source: 'options',
-      title:  a.ticker + ' — ' + (a.signal_type || ''),
-      sub:    a.reasoning || '',
-      edge:   a.edge_pct ? (a.edge_pct >= 0 ? '+' : '') + parseFloat(a.edge_pct).toFixed(1) + '%' : null,
-    });
-  });
-
-  // Sort by timestamp desc
-  allAlerts.sort((a, b) => parseTs(b.ts) - parseTs(a.ts));
-
-  document.getElementById('alert-count').textContent = allAlerts.length + ' total';
-
-  if (!allAlerts.length) {
-    document.getElementById('alerts-feed').innerHTML = '<div class="empty-state">No alerts yet — bots are scanning quietly</div>';
-    return;
-  }
-
-  document.getElementById('alerts-feed').innerHTML = allAlerts.slice(0, 30).map(a => {
-    const edgeColor = a.edge && parseFloat(a.edge) > 0 ? 'var(--green)' : 'var(--red)';
-    return `
-    <div class="alert-item">
-      <div class="alert-source ${BOTS[a.source].srcClass}">${a.source}</div>
-      <div class="alert-text">
-        <div class="alert-title">${escHtml(a.title)}</div>
-        <div class="alert-sub">${escHtml(a.sub)} &nbsp;·&nbsp; ${ago(a.ts)}</div>
-      </div>
-      ${a.edge ? `<div class="alert-edge" style="color:${edgeColor}">${escHtml(a.edge)}</div>` : '<div></div>'}
-    </div>`;
-  }).join('');
-}
-
-// ── Render hit rates ───────────────────────────────────────────────────────
+// ── Hit rates ────────────────────────────────────────────────────────────────
 function renderHitRates() {
   const rows = [];
 
-  // Kalshi by category
-  const kbCats = data.kalshi?.stats?.by_category || {};
+  const kbCats = D.kalshi?.stats?.by_category || {};
   Object.entries(kbCats).forEach(([cat, v]) => {
     if (!v.rated) return;
-    rows.push({ bot: 'Kalshi', name: cat, total: v.total, rated: v.rated, rate: v.hit_rate });
+    rows.push({ bot: 'Kalshi', name: cat, rated: v.rated, total: v.total, rate: v.hit_rate });
   });
-
-  // Kalshi by edge bucket
-  const kbBuckets = data.kalshi?.stats?.by_edge_bucket || {};
-  Object.entries(kbBuckets).forEach(([bucket, v]) => {
+  const fdSports = D.fanduel?.stats?.by_sport || {};
+  Object.entries(fdSports).forEach(([s, v]) => {
+    if (typeof v !== 'object') return;
+    const done = (v.bets||0);
+    if (!done) return;
+    const rate = done ? Math.round((v.wins||0)/done*100) : null;
+    rows.push({ bot: 'FanDuel', name: s, rated: done, total: done, rate });
+  });
+  const optSigs = D.options?.stats?.by_signal_type || {};
+  Object.entries(optSigs).forEach(([sig, v]) => {
     if (!v.rated) return;
-    rows.push({ bot: 'Kalshi', name: bucket, total: v.total, rated: v.rated, rate: v.hit_rate });
-  });
-
-  // FanDuel by sport
-  const fdSports = data.fanduel?.stats?.by_sport || {};
-  Object.entries(fdSports).forEach(([sport, v]) => {
-    if (typeof v === 'object' && v.rated) {
-      rows.push({ bot: 'FanDuel', name: sport, total: v.total, rated: v.rated, rate: v.hit_rate });
-    }
+    rows.push({ bot: 'Options', name: sig.replace(/_/g,' '), rated: v.rated, total: v.total, rate: v.hit_rate });
   });
 
   if (!rows.length) {
-    document.getElementById('hit-rates-panel').innerHTML = '<div class="empty-state">No rated bets yet — hit rates update as markets resolve</div>';
+    document.getElementById('hit-rates').innerHTML = '<div class="empty">No rated bets yet — outcomes update as games resolve</div>';
     return;
   }
-
-  document.getElementById('hit-rates-panel').innerHTML = `
-  <table class="stat-table">
-    <tr><th>Bot</th><th>Category</th><th>Bets</th><th>Hit Rate</th><th></th></tr>
-    ${rows.map(r => {
-      const rate = r.rate ?? 0;
-      return `<tr>
-        <td><span style="color:var(--muted);font-size:11px">${r.bot}</span></td>
-        <td>${escHtml(r.name)}</td>
-        <td>${r.rated}/${r.total}</td>
-        <td>${r.rate != null ? r.rate + '%' : '—'}</td>
-        <td><div class="rate-bar"><div class="rate-fill" style="width:${rate}%"></div></div></td>
-      </tr>`;
-    }).join('')}
-  </table>`;
+  document.getElementById('hit-rates').innerHTML = `
+    <table class="stat-tbl">
+      <tr><th>Bot</th><th>Category</th><th>Rated</th><th>Hit Rate</th><th></th></tr>
+      ${rows.map(r => {
+        const rate = r.rate ?? 0;
+        return `<tr>
+          <td style="color:var(--muted);font-size:11px">${r.bot}</td>
+          <td>${esc(r.name)}</td>
+          <td>${r.rated}/${r.total}</td>
+          <td>${r.rate != null ? r.rate + '%' : '—'}</td>
+          <td><div class="rate-bar"><div class="rate-fill" style="width:${rate}%"></div></div></td>
+        </tr>`;
+      }).join('')}
+    </table>`;
 }
 
-// ── Render auto-bet log ────────────────────────────────────────────────────
+// ── Auto-bet log ──────────────────────────────────────────────────────────────
 function renderAutoBetLog() {
-  const bets = data.kalshi?.bets_placed || [];
-  const dryRun = data.kalshi?.dry_run === true;
-
-  document.getElementById('dry-run-badge').innerHTML = dryRun
-    ? '<span class="dry-tag">DRY RUN</span>'
-    : '<span class="live-tag">LIVE</span>';
+  const bets = D.kalshi?.bets_placed || [];
+  const isLive = D.kalshi?.dry_run !== true;
+  document.getElementById('kal-mode-badge').innerHTML = isLive
+    ? '<span class="tag-live">LIVE</span>'
+    : '<span class="tag-dry">DRY RUN</span>';
 
   if (!bets.length) {
-    document.getElementById('autobet-log').innerHTML = '<div class="empty-state">No auto-bets placed yet</div>';
+    document.getElementById('autobet-log').innerHTML = '<div class="empty">No auto-bets placed yet<br><span style="font-size:11px">Bets appear here when Kalshi places them automatically</span></div>';
     return;
   }
-
   document.getElementById('autobet-log').innerHTML = `
-  <div class="bet-row bet-row-header">
-    <span>Time</span><span>Market</span><span>Dir</span><span>Size</span><span>Edge</span><span>Status</span>
-  </div>
-  ${bets.slice(0, 15).map(b => {
-    const isDryRun = b.dry_run === 'True' || b.dry_run === true;
-    const dir = (b.direction || '').toUpperCase();
-    const edge = parseFloat(b.edge_pct);
-    const dollars = parseFloat(b.dollars_risked);
-    const ts = b.timestamp ? new Date(b.timestamp).toLocaleString('en-US', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    return `<div class="bet-row">
-      <span style="color:var(--muted);font-size:12px">${ts}</span>
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(b.title||'')}">
-        <span style="font-size:11px;color:var(--muted)">${escHtml(b.category||'')}</span><br>
-        <span style="font-weight:600;font-size:12px">${escHtml(b.ticker||'')}</span>
-      </span>
-      <span class="${dir==='YES'?'dir-yes':'dir-no'}">${dir}</span>
-      <span>${isNaN(dollars)?'—':'$'+dollars.toFixed(2)}<br><span style="color:var(--muted);font-size:11px">${b.contracts||''}ct @ ${b.price_cents||''}¢</span></span>
-      <span style="color:${edge>=0?'var(--green)':'var(--red)'};font-weight:700">${isNaN(edge)?'—':(edge>=0?'+':'')+edge.toFixed(1)+'%'}</span>
-      <span>${isDryRun ? '<span class="dry-tag">dry run</span>' : '<span class="live-tag">placed</span>'}</span>
-    </div>`;
-  }).join('')}`;
+    <div class="bet-row bet-row-hdr">
+      <span>Time</span><span>Market</span><span>Dir</span><span>Size</span><span>Edge</span><span>Status</span>
+    </div>
+    ${bets.slice(0,15).map(b => {
+      const dir = (b.direction||'').toUpperCase();
+      const edge = parseFloat(b.edge_pct);
+      const dollars = parseFloat(b.dollars_risked);
+      const ts = b.timestamp
+        ? new Date(parseTs(b.timestamp)).toLocaleString('en-US',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})
+        : '—';
+      const isDry = b.dry_run === 'True' || b.dry_run === true;
+      return `<div class="bet-row">
+        <span style="color:var(--muted);font-size:11px">${ts}</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(b.title||'')}">
+          <span style="font-size:10px;color:var(--muted)">${esc(b.category||'')}</span><br>
+          <span style="font-weight:600;font-size:11px">${esc(b.ticker||'')}</span>
+        </span>
+        <span class="${dir==='YES'?'dir-yes':'dir-no'}">${dir}</span>
+        <span>${isNaN(dollars)?'—':'$'+dollars.toFixed(2)}<br>
+          <span style="color:var(--muted);font-size:10px">${b.contracts||''}ct@${b.price_cents||''}¢</span>
+        </span>
+        <span style="color:${!isNaN(edge)&&edge>=0?'var(--green)':'var(--red)'};font-weight:700">
+          ${isNaN(edge)?'—':(edge>=0?'+':'')+edge.toFixed(1)+'%'}
+        </span>
+        <span>${isDry ? '<span class="tag-dry">dry</span>' : '<span class="tag-live">placed</span>'}</span>
+      </div>`;
+    }).join('')}`;
 }
 
-function escHtml(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Master render ──────────────────────────────────────────────────────────
+// ── Master render ────────────────────────────────────────────────────────────
 function render() {
-  renderBotCards();
+  renderHero();
+  renderStatusCards();
+  renderFdBets();
+  renderKalPositions();
+  renderAlertFeed();
   renderPnL();
   renderBankroll();
-  renderAlerts();
   renderHitRates();
   renderAutoBetLog();
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────
 refreshAll();
 </script>
 </body>

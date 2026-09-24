@@ -244,23 +244,24 @@ function statusFromAge(s, maxMin) {
   const ms = parseTs(s);
   if (isNaN(ms)) return 'err';
   const d = (Date.now() - ms) / 60000;
+  if (d < -5) return 'err';
   if (d > maxMin * 2)   return 'err';
   if (d > maxMin * 1.5) return 'warn';
   return 'ok';
 }
 function statusLabel(s) {
-  return s === 'ok' ? 'Running' : s === 'warn' ? 'Delayed' : 'Offline';
+  return s === 'ok' ? 'Recent data' : s === 'warn' ? 'Delayed data' : 'Stale or unavailable';
 }
 
 // ── Formatting ───────────────────────────────────────────────────────────────
 function esc(s) {
   if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function pnlCls(v) { return v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu'; }
 function pnlStr(v) {
   if (v == null) return '—';
-  return (v >= 0 ? '+' : '') + '$' + Math.abs(v).toFixed(2);
+  return (v >= 0 ? '+' : '-') + '$' + Math.abs(v).toFixed(2);
 }
 function unitStr(u) {
   if (u == null) return null;
@@ -335,7 +336,7 @@ function renderHero() {
   const kal_u = D.kalshi?.unit_total  ?? null;
   const opt_u = D.options?.unit_total ?? null;
   const vals  = [fd_u, kal_u, opt_u].filter(x => x != null);
-  const total = vals.length ? vals.reduce((a,b) => a+b, 0) : null;
+  const total = null; // Unit definitions differ; a combined total is misleading.
 
   function botUnitHtml(name, u) {
     const s = unitStr(u);
@@ -352,7 +353,7 @@ function renderHero() {
   document.getElementById('hero-strip').innerHTML = `
     <div class="hero-total">
       <div class="hero-num ${totalCls}">${totalStr}</div>
-      <div class="hero-label">Combined<br>Unit P&L</div>
+      <div class="hero-label">Separate<br>System Metrics</div>
     </div>
     <div class="hero-bots">
       ${botUnitHtml('⚾ FanDuel', fd_u)}
@@ -373,7 +374,7 @@ function renderStatusCards() {
 function buildFdCard() {
   const d = D.fanduel;
   if (!d) return errCard('⚾ FanDuel Bot');
-  const st = statusFromAge(d.last_scan_ts || d.generated_at, 120);
+  const st = statusFromAge(('last_scan_ts' in d ? d.last_scan_ts : d.generated_at), 120);
   const rec = calcFdRecord(d.recent_bets);
   const stats = d.stats || {};
   const u = d.unit_total;
@@ -393,11 +394,11 @@ function buildFdCard() {
         </div>
         <div>
           <div class="meta-label">Total Alerts</div>
-          <div class="meta-value">${stats.total_alerts ?? '—'}</div>
+          <div class="meta-value">${esc(stats.total_alerts ?? '—')}</div>
         </div>
         <div>
           <div class="meta-label">Last Scan</div>
-          <div class="meta-value sm">${ago(d.last_scan_ts || d.generated_at)}</div>
+          <div class="meta-value sm">${ago(('last_scan_ts' in d ? d.last_scan_ts : d.generated_at))}</div>
         </div>
       </div>
     </div>
@@ -407,14 +408,14 @@ function buildFdCard() {
 function buildKalCard() {
   const d = D.kalshi;
   if (!d) return errCard('📊 Kalshi Bot');
-  const st  = statusFromAge(d.last_scan_ts || d.generated_at, 120);
+  const st  = statusFromAge(('last_scan_ts' in d ? d.last_scan_ts : d.generated_at), 120);
   const rec = calcKalshiRecord(d.recent_alerts);
   const br  = d.bankroll || {};
   const live = br.live || {};
   const acct = d.account_value ?? live.balance;
   const u    = d.unit_total;
   const pnl  = d.live_pnl ?? null;
-  const isLive = d.dry_run !== true;
+  const isLive = d.dry_run === false;
   return `<div class="card">
     <div class="card-body">
       <div class="bot-name">📊 Kalshi Bot</div>
@@ -445,7 +446,7 @@ function buildKalCard() {
 function buildOptCard() {
   const d = D.options;
   if (!d) return errCard('📈 Options Bot');
-  const st = statusFromAge(d.last_scan_ts || d.generated_at, 180);
+  const st = statusFromAge(('last_scan_ts' in d ? d.last_scan_ts : d.generated_at), 180);
   const stats = d.stats || {};
   const u = d.unit_total;
   const alerts = d.alerts || [];
@@ -466,7 +467,7 @@ function buildOptCard() {
         </div>
         <div>
           <div class="meta-label">Total Signals</div>
-          <div class="meta-value">${stats.total_alerts ?? '—'}</div>
+          <div class="meta-value">${esc(stats.total_alerts ?? '—')}</div>
         </div>
         <div>
           <div class="meta-label">Last Scan</div>
@@ -503,7 +504,7 @@ function renderFdBets() {
       <div class="outcome-icon">${outcomeIcon(b.outcome)}</div>
       <div>
         <div class="bet-game">${esc(b.sport)} | ${esc(b.game||'')}</div>
-        <div class="bet-sub">${b.bet_type?.toUpperCase()} ${esc(side)} ${esc(b.line)} · ${ago(b.timestamp)} · conf ${b.confidence}</div>
+        <div class="bet-sub">${esc(b.bet_type?.toUpperCase())} ${esc(side)} ${esc(b.line)} · ${ago(b.timestamp_iso || b.timestamp)} · conf ${esc(b.confidence)}</div>
       </div>
       <div class="bet-edge" style="color:${edge > 10 ? 'var(--green)' : 'var(--muted)'}">${eStr}</div>
     </div>`;
@@ -525,13 +526,13 @@ function renderKalPositions() {
     const plCls = pl > 0 ? 'pos' : pl < 0 ? 'neg' : 'neu';
     const dir = p.direction || 'YES';
     return `<div class="pos-card">
-      <div class="pos-ticker">${esc(p.ticker||'')} <span style="color:${dir==='YES'?'var(--green)':'var(--red)'};font-size:11px;font-weight:700">${dir}</span></div>
+      <div class="pos-ticker">${esc(p.ticker||'')} <span style="color:${dir==='YES'?'var(--green)':'var(--red)'};font-size:11px;font-weight:700">${esc(dir)}</span></div>
       <div class="pos-title">${esc(p.title||p.ticker||'')}</div>
       <div class="pos-grid">
-        <div><div class="pos-label">Contracts</div><div class="pos-val">${p.contracts||'—'}</div></div>
+        <div><div class="pos-label">Contracts</div><div class="pos-val">${esc(p.contracts||'—')}</div></div>
         <div><div class="pos-label">Risked</div><div class="pos-val">$${Number(p.dollars_risked||0).toFixed(2)}</div></div>
-        <div><div class="pos-label">Entry</div><div class="pos-val">${p.entry_cents||'—'}¢</div></div>
-        <div><div class="pos-label">Current</div><div class="pos-val">${p.current_cents||'—'}¢</div></div>
+        <div><div class="pos-label">Entry</div><div class="pos-val">${esc(p.entry_cents||'—')}¢</div></div>
+        <div><div class="pos-label">Current</div><div class="pos-val">${esc(p.current_cents||'—')}¢</div></div>
         <div><div class="pos-label">Value</div><div class="pos-val">$${Number(p.current_value||0).toFixed(2)}</div></div>
         <div><div class="pos-label">P&L</div><div class="pos-val ${plCls}">${pl >= 0 ? '+' : ''}$${Number(pl||0).toFixed(2)}</div></div>
       </div>
@@ -548,7 +549,7 @@ function renderAlertFeed() {
       ? (b.game||'').split(' @ ').pop()
       : (b.game||'').split(' @ ')[0];
     all.push({
-      ts: b.timestamp, src: 'fd',
+      ts: b.timestamp_iso || b.timestamp, src: 'fd',
       title: (b.sport||'') + ' — ' + (b.game||''),
       sub: (b.bet_type||'').toUpperCase() + ' ' + (side||'') + ' ' + (b.line||'') + ' · ' + (b.signals||''),
       edge: parseFloat(b.edge_pct),
@@ -558,7 +559,7 @@ function renderAlertFeed() {
 
   (D.kalshi?.recent_alerts || []).slice(0,20).forEach(a => {
     all.push({
-      ts: a.timestamp, src: 'kal',
+      ts: a.timestamp_iso || a.timestamp, src: 'kal',
       title: a.title || a.ticker,
       sub: (a.direction||'') + ' · conf ' + (a.confidence||'') + ' · ' + (a.category||''),
       edge: parseFloat(a.edge_pct),
@@ -568,7 +569,7 @@ function renderAlertFeed() {
 
   (D.options?.alerts || []).slice(0,20).forEach(a => {
     all.push({
-      ts: a.timestamp, src: 'opt',
+      ts: a.timestamp_iso || a.timestamp, src: 'opt',
       title: (a.ticker||'') + ' — ' + (a.signal_label || a.signal_type||''),
       sub: 'Price $' + (a.price_at_alert||'') + ' · conf ' + (a.confidence_score||''),
       edge: NaN,
@@ -606,7 +607,7 @@ function renderPnL() {
   const fd_u   = D.fanduel?.unit_total      ?? null;
   const kal_u  = D.kalshi?.unit_total       ?? null;
   const opt_u  = D.options?.unit_total      ?? null;
-  const total_pl = [fd_pl, kal_pl].filter(x=>x!=null).reduce((a,b)=>a+b, 0);
+  const total_pl = null; // Simulated outcomes and live account change are not additive.
 
   function row(label, pl, u) {
     const us = unitStr(u);
@@ -619,14 +620,14 @@ function renderPnL() {
     </div>`;
   }
   const allUnits = [fd_u, kal_u, opt_u].filter(x=>x!=null);
-  const total_u = allUnits.length ? allUnits.reduce((a,b)=>a+b,0) : null;
+  const total_u = null;
 
   document.getElementById('pnl-panel').innerHTML =
     row('⚾ FanDuel', fd_pl, fd_u) +
     row('📊 Kalshi',  kal_pl, kal_u) +
     row('📈 Options', null,   opt_u) +
     `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-top:2px">
-      <div style="font-weight:700;font-size:14px">TOTAL</div>
+      <div style="font-weight:700;font-size:14px">Separate accounting bases</div>
       <div style="display:flex;align-items:center;gap:12px">
         <div style="font-size:20px;font-weight:800" class="${pnlCls(total_pl)}">${pnlStr(total_pl)}</div>
         ${total_u != null ? `<div style="font-size:18px;font-weight:800" class="${unitCls(total_u)}">${unitStr(total_u)}</div>` : ''}
@@ -649,7 +650,7 @@ function renderBankroll() {
     items.push({ label: 'Kalshi (paper)', val: bal, peak, cls: 'bar-blue', pre: '$' });
   }
   if (D.fanduel) {
-    items.push({ label: 'FanDuel', val: 1000, peak: 1000, cls: 'bar-green', pre: '$' });
+    // No reported FanDuel balance is available; do not fabricate one.
   }
   if (!items.length) { document.getElementById('bankroll-panel').innerHTML = '<div class="empty">No data</div>'; return; }
   document.getElementById('bankroll-panel').innerHTML = items.map(it => {
@@ -695,12 +696,12 @@ function renderHitRates() {
     <table class="stat-tbl">
       <tr><th>Bot</th><th>Category</th><th>Rated</th><th>Hit Rate</th><th></th></tr>
       ${rows.map(r => {
-        const rate = r.rate ?? 0;
+        const rate = Math.max(0, Math.min(100, Number(r.rate) || 0));
         return `<tr>
           <td style="color:var(--muted);font-size:11px">${r.bot}</td>
           <td>${esc(r.name)}</td>
-          <td>${r.rated}/${r.total}</td>
-          <td>${r.rate != null ? r.rate + '%' : '—'}</td>
+          <td>${esc(r.rated)}/${esc(r.total)}</td>
+          <td>${esc(r.rate != null ? r.rate + '%' : '—')}</td>
           <td><div class="rate-bar"><div class="rate-fill" style="width:${rate}%"></div></div></td>
         </tr>`;
       }).join('')}
@@ -710,10 +711,10 @@ function renderHitRates() {
 // ── Auto-bet log ──────────────────────────────────────────────────────────────
 function renderAutoBetLog() {
   const bets = D.kalshi?.bets_placed || [];
-  const isLive = D.kalshi?.dry_run !== true;
+  const isLive = D.kalshi?.dry_run === false;
   document.getElementById('kal-mode-badge').innerHTML = isLive
     ? '<span class="tag-live">LIVE</span>'
-    : '<span class="tag-dry">DRY RUN</span>';
+    : D.kalshi?.dry_run === true ? '<span class="tag-dry">DRY RUN</span>' : '<span class="tag-dry">UNKNOWN</span>';
 
   if (!bets.length) {
     document.getElementById('autobet-log').innerHTML = '<div class="empty">No auto-bets placed yet<br><span style="font-size:11px">Bets appear here when Kalshi places them automatically</span></div>';
@@ -737,9 +738,9 @@ function renderAutoBetLog() {
           <span style="font-size:10px;color:var(--muted)">${esc(b.category||'')}</span><br>
           <span style="font-weight:600;font-size:11px">${esc(b.ticker||'')}</span>
         </span>
-        <span class="${dir==='YES'?'dir-yes':'dir-no'}">${dir}</span>
+        <span class="${dir==='YES'?'dir-yes':'dir-no'}">${esc(dir)}</span>
         <span>${isNaN(dollars)?'—':'$'+dollars.toFixed(2)}<br>
-          <span style="color:var(--muted);font-size:10px">${b.contracts||''}ct@${b.price_cents||''}¢</span>
+          <span style="color:var(--muted);font-size:10px">${esc(b.contracts||'')}ct@${esc(b.price_cents||'')}¢</span>
         </span>
         <span style="color:${!isNaN(edge)&&edge>=0?'var(--green)':'var(--red)'};font-weight:700">
           ${isNaN(edge)?'—':(edge>=0?'+':'')+edge.toFixed(1)+'%'}
